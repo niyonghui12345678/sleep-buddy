@@ -328,48 +328,27 @@ async function addShopItem(){var e=document.getElementById('mEmoji').value.trim(
 
 /* ═══ EGG BACKPACK ═══ */
 function rEgg(){
-  ensureEggs();var n=S.names,streak=getStreak(),total=getTotalDays(),wp=getMonthWorkProgress();
+  ensureEggs();var n=S.names;
   var pg=document.getElementById('pg-egg');
   var h='<div class="bp-sum"><div class="bp-card"><div class="bp-icon">⭐</div><div class="bp-name">'+n.A+' 碎片</div><div class="bp-val">'+S.eggs.shards.A+'/3</div></div><div class="bp-card"><div class="bp-icon">⭐</div><div class="bp-name">'+n.B+' 碎片</div><div class="bp-val">'+S.eggs.shards.B+'/3</div></div></div>';
   h+='<div class="bp-sum"><div class="bp-card bp-green"><div class="bp-icon">🎫</div><div class="bp-name">'+n.A+' 免罚券</div><div class="bp-val">'+S.eggs.freePass.A+'</div></div><div class="bp-card bp-green"><div class="bp-icon">🎫</div><div class="bp-name">'+n.B+' 免罚券</div><div class="bp-val">'+S.eggs.freePass.B+'</div></div></div>';
-
   var we=S.eggs.weeklyEgg;
   h+='<div class="st">本周彩蛋</div><div class="bp-weekly">';
   if(we){var wef=WEEKLY_EGGS.find(function(e){return e.type===we.type});if(wef)h+='<div class="bw-icon">'+wef.icon+'</div><div class="bw-name">'+wef.name+'</div><div class="bw-desc">'+wef.desc+'</div>';else h+='<div class="bw-empty">本周彩蛋已查看</div>'}else h+='<div class="bw-empty">下周一解锁新彩蛋 🎲</div>';
   h+='</div>';
-
-  h+='<div class="st">解锁进度</div>';
-  // Album
   var albumUnlocked=S.eggs.backpack.some(function(b){return b.type==='album'});
-  var albumPct=Math.min(100,Math.round(streak/21*100));
-  h+='<div class="bp-mile"><div class="bp-mile-top"><span class="bp-mile-icon">📸</span><span class="bp-mile-name">回忆碎片相册</span><span class="bp-mile-status '+(albumUnlocked?'ms-unlock':'ms-locked')+'">'+(albumUnlocked?(S.eggs.albumMarked.A&&S.eggs.albumMarked.B?'已完成 ✓':'已解锁'):'🔒 '+streak+'/21天')+'</span></div><div class="bp-bar"><div class="bp-fill teal" style="width:'+albumPct+'%"></div></div><div class="bp-mile-sub"><span>连续打卡</span><span>'+streak+'/21 天</span></div>';
-  if(albumUnlocked)h+='<div class="bp-actions"><button class="bp-act bp-act-primary" '+(S.eggs.albumMarked[U]?'disabled':'')+' onclick="markTask(\'album\')">'+(S.eggs.albumMarked[U]?'已标记 ✓':'我完成了 +3积分')+'</button></div>';
-  h+='</div>';
-
-  // Voice
   var voiceUnlocked=S.eggs.backpack.some(function(b){return b.type==='voice'});
-  var voicePct=wp.monthTotal>0?Math.min(100,Math.round(wp.done/wp.monthTotal*100)):0;
-  h+='<div class="bp-mile"><div class="bp-mile-top"><span class="bp-mile-icon">🎤</span><span class="bp-mile-name">语音盲盒</span><span class="bp-mile-status '+(voiceUnlocked?'ms-unlock':'ms-locked')+'">'+(voiceUnlocked?(S.eggs.voiceMarked.A&&S.eggs.voiceMarked.B?'已完成 ✓':'已解锁'):'🔒 '+wp.done+'/'+wp.monthTotal+'工作日')+'</span></div><div class="bp-bar"><div class="bp-fill pink" style="width:'+voicePct+'%"></div></div><div class="bp-mile-sub"><span>本月工作日全勤</span><span>'+wp.done+'/'+wp.monthTotal+'</span></div>';
-  if(voiceUnlocked)h+='<div class="bp-actions"><button class="bp-act bp-act-primary" '+(S.eggs.voiceMarked[U]?'disabled':'')+' onclick="markTask(\'voice\')">'+(S.eggs.voiceMarked[U]?'已标记 ✓':'我完成了 +3积分')+'</button></div>';
-  h+='</div>';
-
-  // Wallpaper
-  var wpUnlocked=albumUnlocked&&voiceUnlocked;
-  h+='<div class="bp-mile"><div class="bp-mile-top"><span class="bp-mile-icon">🎨</span><span class="bp-mile-name">限定壁纸</span><span class="bp-mile-status '+(wpUnlocked?'ms-unlock':'ms-locked')+'">'+(wpUnlocked?'已解锁':'🔒 需相册+盲盒完成')+'</span></div><div class="bp-bar"><div class="bp-fill gold" style="width:'+(wpUnlocked?100:0)+'%"></div></div><div class="bp-mile-sub"><span>满勤+相册完成</span><span>'+(wpUnlocked?'✓':'未解锁')+'</span></div>';
-  if(wpUnlocked)h+='<div class="bp-actions"><button class="bp-act bp-act-ghost" onclick="genWallpaper()">生成壁纸 🎨</button></div>';
-  h+='</div>';
-
-  // Meet
   var meetUnlocked=S.eggs.backpack.some(function(b){return b.type==='meet'});
-  var meetPct=Math.min(100,Math.round(streak/60*100));
-  h+='<div class="bp-mile"><div class="bp-mile-top"><span class="bp-mile-icon">🎫</span><span class="bp-mile-name">线下见面券</span><span class="bp-mile-status '+(meetUnlocked?'ms-unlock':'ms-locked')+'">'+(meetUnlocked?'已解锁 ✓':'🔒 '+streak+'/60天')+'</span></div><div class="bp-bar"><div class="bp-fill gold" style="width:'+meetPct+'%"></div></div><div class="bp-mile-sub"><span>连续打卡</span><span>'+streak+'/60 天</span></div></div>';
-
-  // Memorial
   var memUnlocked=S.eggs.backpack.some(function(b){return b.type==='memorial'});
-  var memPct=Math.min(100,Math.round(total/100*100));
-  h+='<div class="bp-mile"><div class="bp-mile-top"><span class="bp-mile-icon">📖</span><span class="bp-mile-name">全年纪念手册</span><span class="bp-mile-status '+(memUnlocked?'ms-unlock':'ms-locked')+'">'+(memUnlocked?'已解锁 ✓':'🔒 '+total+'/100天')+'</span></div><div class="bp-bar"><div class="bp-fill purple" style="width:'+memPct+'%"></div></div><div class="bp-mile-sub"><span>累计打卡</span><span>'+total+'/100 天</span></div></div>';
-
-  // History
+  var wpUnlocked=albumUnlocked&&voiceUnlocked;
+  if(albumUnlocked||voiceUnlocked||wpUnlocked||meetUnlocked||memUnlocked){
+    h+='<div class="st">已解锁</div>';
+    if(albumUnlocked)h+='<div class="bp-mile"><div class="bp-mile-top"><span class="bp-mile-icon">📸</span><span class="bp-mile-name">回忆碎片相册</span><span class="bp-mile-status ms-unlock">'+(S.eggs.albumMarked.A&&S.eggs.albumMarked.B?'已完成 ✓':'已解锁')+'</span></div><div class="bp-actions"><button class="bp-act bp-act-primary" '+(S.eggs.albumMarked[U]?'disabled':'')+' onclick="markTask(\'album\')">'+(S.eggs.albumMarked[U]?'已标记 ✓':'我完成了 +3积分')+'</button></div></div>';
+    if(voiceUnlocked)h+='<div class="bp-mile"><div class="bp-mile-top"><span class="bp-mile-icon">🎤</span><span class="bp-mile-name">语音盲盒</span><span class="bp-mile-status ms-unlock">'+(S.eggs.voiceMarked.A&&S.eggs.voiceMarked.B?'已完成 ✓':'已解锁')+'</span></div><div class="bp-actions"><button class="bp-act bp-act-primary" '+(S.eggs.voiceMarked[U]?'disabled':'')+' onclick="markTask(\'voice\')">'+(S.eggs.voiceMarked[U]?'已标记 ✓':'我完成了 +3积分')+'</button></div></div>';
+    if(wpUnlocked)h+='<div class="bp-mile"><div class="bp-mile-top"><span class="bp-mile-icon">🎨</span><span class="bp-mile-name">限定壁纸</span><span class="bp-mile-status ms-unlock">已解锁</span></div><div class="bp-actions"><button class="bp-act bp-act-ghost" onclick="genWallpaper()">生成壁纸 🎨</button></div></div>';
+    if(meetUnlocked)h+='<div class="bp-mile"><div class="bp-mile-top"><span class="bp-mile-icon">🎫</span><span class="bp-mile-name">线下见面券</span><span class="bp-mile-status ms-unlock">已解锁 ✓</span></div></div>';
+    if(memUnlocked)h+='<div class="bp-mile"><div class="bp-mile-top"><span class="bp-mile-icon">📖</span><span class="bp-mile-name">全年纪念手册</span><span class="bp-mile-status ms-unlock">已解锁 ✓</span></div></div>';
+  }
   if(S.eggs.backpack.length>0){
     h+='<div class="st">彩蛋历史</div><div class="bp-hist">';
     var allEggs=DAILY_EGGS.concat(WEEKLY_EGGS);
