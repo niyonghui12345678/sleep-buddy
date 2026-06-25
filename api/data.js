@@ -27,7 +27,19 @@ function defaults() {
       { id: 8, e: '🍽️', n: '指定晚餐', d: '你来指定今晚吃什么', c: 8 }
     ],
     redeems: [],
-    nextShopId: 9
+    nextShopId: 9,
+    eggs: {
+      shards: { A: 0, B: 0 },
+      freePass: { A: 0, B: 0 },
+      backpack: [],
+      weeklyEgg: null,
+      lastDailyEgg: { A: null, B: null },
+      lastWeeklyEgg: null,
+      albumMarked: { A: false, B: false },
+      voiceMarked: { A: false, B: false },
+      unlockMonth: null,
+      wallpaperCount: 0
+    }
   };
 }
 
