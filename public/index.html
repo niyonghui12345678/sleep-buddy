@@ -253,6 +253,7 @@ var WEEKLY_EGGS=[
 {type:'capsule',icon:'📮',name:'时光胶囊',desc:'写一段对彼此作息的小期许\n拍照保存，约定一个月后拆开看',cls:'ec-capsule',sub:'截图记录 📮'}
 ];
 var MILE_EGGS={
+gift:{icon:'👗',name:'心愿好礼解锁',desc:'连续打卡21天达成！\n奖励一件心仪已久的衣服或口红\n由对方来送你',cls:'ec-favor',sub:'截图发给TA兑现 💛'},
 album:{icon:'📸',name:'回忆碎片相册解锁',desc:'连续打卡21天达成！\n各自拍5张近期生活随手照\n拼成双人云相册互发\n配一句温柔碎碎念',cls:'ec-album',sub:'完成后各+3积分',pts:3},
 voice:{icon:'🎤',name:'语音盲盒解锁',desc:'本月工作日全勤达成！\n各自录3条语音盲盒：\n唱一首单曲循环的歌\n温柔早安/晚安\n模仿对方吐槽一件事',cls:'ec-voice',sub:'完成后各+3积分',pts:3},
 meet:{icon:'🎫',name:'线下见面券',desc:'连续打卡60天！\n凭此券可兑换：\n一次短途散步\n一起逛便利店\n共享一顿简餐',cls:'ec-meet',sub:'最好的奖励是见到你'},
@@ -289,6 +290,7 @@ function checkWeeklyEgg(){
 function checkMilestones(){
   ensureEggs();var streak=getStreak(),total=getTotalDays(),bp=S.eggs.backpack;
   function has(t){return bp.some(function(b){return b.type===t})}
+  if(streak>=21&&!has('gift')){bp.push({type:'gift',date:td()});var mg=MILE_EGGS.gift;queueEgg('gift','mile',mg.desc,mg.cls,mg.icon,mg.sub);document.getElementById('eggDot').classList.add('show')}
   if(streak>=21&&!has('album')){bp.push({type:'album',date:td()});var m=MILE_EGGS.album;queueEgg('album','mile',m.desc,m.cls,m.icon,m.sub);document.getElementById('eggDot').classList.add('show')}
   if(streak>=60&&!has('meet')){bp.push({type:'meet',date:td()});var m2=MILE_EGGS.meet;queueEgg('meet','mile',m2.desc,m2.cls,m2.icon,m2.sub);document.getElementById('eggDot').classList.add('show')}
   if(total>=100&&!has('memorial')){bp.push({type:'memorial',date:td()});var m3=MILE_EGGS.memorial;queueEgg('memorial','mile',m3.desc,m3.cls,m3.icon,m3.sub);document.getElementById('eggDot').classList.add('show')}
@@ -338,6 +340,7 @@ function rEgg(){
   h+='</div>';
   var albumUnlocked=S.eggs.backpack.some(function(b){return b.type==='album'});
   var voiceUnlocked=S.eggs.backpack.some(function(b){return b.type==='voice'});
+  var giftUnlocked=S.eggs.backpack.some(function(b){return b.type==='gift'});
   var meetUnlocked=S.eggs.backpack.some(function(b){return b.type==='meet'});
   var memUnlocked=S.eggs.backpack.some(function(b){return b.type==='memorial'});
   var wpUnlocked=albumUnlocked&&voiceUnlocked;
@@ -346,6 +349,7 @@ function rEgg(){
     if(albumUnlocked)h+='<div class="bp-mile"><div class="bp-mile-top"><span class="bp-mile-icon">📸</span><span class="bp-mile-name">回忆碎片相册</span><span class="bp-mile-status ms-unlock">'+(S.eggs.albumMarked.A&&S.eggs.albumMarked.B?'已完成 ✓':'已解锁')+'</span></div><div class="bp-actions"><button class="bp-act bp-act-primary" '+(S.eggs.albumMarked[U]?'disabled':'')+' onclick="markTask(\'album\')">'+(S.eggs.albumMarked[U]?'已标记 ✓':'我完成了 +3积分')+'</button></div></div>';
     if(voiceUnlocked)h+='<div class="bp-mile"><div class="bp-mile-top"><span class="bp-mile-icon">🎤</span><span class="bp-mile-name">语音盲盒</span><span class="bp-mile-status ms-unlock">'+(S.eggs.voiceMarked.A&&S.eggs.voiceMarked.B?'已完成 ✓':'已解锁')+'</span></div><div class="bp-actions"><button class="bp-act bp-act-primary" '+(S.eggs.voiceMarked[U]?'disabled':'')+' onclick="markTask(\'voice\')">'+(S.eggs.voiceMarked[U]?'已标记 ✓':'我完成了 +3积分')+'</button></div></div>';
     if(wpUnlocked)h+='<div class="bp-mile"><div class="bp-mile-top"><span class="bp-mile-icon">🎨</span><span class="bp-mile-name">限定壁纸</span><span class="bp-mile-status ms-unlock">已解锁</span></div><div class="bp-actions"><button class="bp-act bp-act-ghost" onclick="genWallpaper()">生成壁纸 🎨</button></div></div>';
+    if(giftUnlocked)h+='<div class="bp-mile"><div class="bp-mile-top"><span class="bp-mile-icon">👗</span><span class="bp-mile-name">心愿好礼</span><span class="bp-mile-status ms-unlock">已解锁 ✓</span></div></div>';
     if(meetUnlocked)h+='<div class="bp-mile"><div class="bp-mile-top"><span class="bp-mile-icon">🎫</span><span class="bp-mile-name">线下见面券</span><span class="bp-mile-status ms-unlock">已解锁 ✓</span></div></div>';
     if(memUnlocked)h+='<div class="bp-mile"><div class="bp-mile-top"><span class="bp-mile-icon">📖</span><span class="bp-mile-name">全年纪念手册</span><span class="bp-mile-status ms-unlock">已解锁 ✓</span></div></div>';
   }
