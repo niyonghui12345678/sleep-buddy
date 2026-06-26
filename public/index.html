@@ -214,7 +214,7 @@ function isBothOnTime(r){
 }
 function getRepairDay(){
   var d=new Date();
-  for(var i=1;i<=30;i++){
+  for(var i=0;i<=30;i++){
     var cd=new Date(d);cd.setDate(d.getDate()-i);
     var k=cd.getFullYear()+'-'+p2(cd.getMonth()+1)+'-'+p2(cd.getDate());
     var r=S.recs[k];
@@ -237,7 +237,7 @@ function useRepairCard(){
   if(!S.recs[day.k]) S.recs[day.k]={A:{s:null,w:null,sp:0,wp:0},B:{s:null,w:null,sp:0,wp:0}};
   S.recs[day.k].A.s='23:00';S.recs[day.k].A.w='07:00';S.recs[day.k].A.sp=1;S.recs[day.k].A.wp=1;
   S.recs[day.k].B.s='23:00';S.recs[day.k].B.w='07:00';S.recs[day.k].B.sp=1;S.recs[day.k].B.wp=1;
-  save();toast('✅ 已补签 '+day.label+'，连续天数已续上！','ok');render();
+  await save();toast('✅ 已补签 '+day.label+'，连续天数已续上！','ok');render();
 }
 function getStreak(){
   var streak=0,d=new Date(),tk=td(),tr=S.recs[tk];
