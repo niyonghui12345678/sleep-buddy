@@ -39,7 +39,8 @@ function defaults() {
       voiceMarked: { A: false, B: false },
       unlockMonth: null,
       wallpaperCount: 0,
-      repairCards: { A: 1, B: 1 }
+      repairCards: { A: 1, B: 1 },
+      _sleepDateFixed: false
     }
   };
 }
