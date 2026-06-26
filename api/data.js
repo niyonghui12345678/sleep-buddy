@@ -38,8 +38,7 @@ function defaults() {
       albumMarked: { A: false, B: false },
       voiceMarked: { A: false, B: false },
       unlockMonth: null,
-      wallpaperCount: 0,
-      repairCards: { A: 1, B: 1 }
+      wallpaperCount: 0
     }
   };
 }
