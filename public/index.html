@@ -230,6 +230,7 @@ function buyRepairCard(){
 }
 function useRepairCard(){
   ensureEggs();var u=U;
+  S.eggs.repairCards[U]=99;
   if(!S.eggs.repairCards[u]||S.eggs.repairCards[u]<=0){toast('没有补签卡了','wn');return}
   var day=getRepairDay();
   if(!day){toast('最近没有断签，不需要补签','ok');return}
