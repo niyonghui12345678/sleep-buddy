@@ -40,7 +40,8 @@ function defaults() {
       unlockMonth: null,
       wallpaperCount: 0,
       repairCards: { A: 1, B: 1 },
-      _sleepDateFixed: false
+      _sleepDateFixed: false,
+      _sstExtraCard: false
     }
   };
 }
