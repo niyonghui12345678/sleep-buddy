@@ -241,7 +241,12 @@ function findPendingSleep(u){for(var i=0;i<3;i++){var cd=new Date();cd.setDate(c
 function getRecentRecord(u){for(var i=0;i<3;i++){var cd=new Date();cd.setDate(cd.getDate()-i);var k=cd.getFullYear()+'-'+p2(cd.getMonth()+1)+'-'+p2(cd.getDate());var rec=S.recs[k]&&S.recs[k][u];if(rec&&rec.s)return{date:k,s:rec.s,w:rec.w}}return null}
 
 /* ═══ 彩蛋初始化 ═══ */
-function ensureEggs(){if(!S.eggs)S.eggs={shards:{A:0,B:0},freePass:{A:0,B:0},backpack:[],weeklyEgg:null,lastDailyEgg:{A:null,B:null},lastWeeklyEgg:null,albumMarked:{A:false,B:false},voiceMarked:{A:false,B:false},unlockMonth:null,wallpaperCount:0,repairCards:{A:1,B:1},_sleepDateFixed:false};if(!S.eggs.repairCards)S.eggs.repairCards={A:1,B:1};if(!S.eggs._sleepDateFixed){S.eggs.repairCards.A=(S.eggs.repairCards.A||0)+1;S.eggs.repairCards.B=(S.eggs.repairCards.B||0)+1;S.eggs._sleepDateFixed=true}}
+function ensureEggs(){
+  if(!S.eggs)S.eggs={shards:{A:0,B:0},freePass:{A:0,B:0},backpack:[],weeklyEgg:null,lastDailyEgg:{A:null,B:null},lastWeeklyEgg:null,albumMarked:{A:false,B:false},voiceMarked:{A:false,B:false},unlockMonth:null,wallpaperCount:0,repairCards:{A:1,B:1},_sleepDateFixed:false,_sstExtraCard:false};
+  if(!S.eggs.repairCards)S.eggs.repairCards={A:1,B:1};
+  if(!S.eggs._sleepDateFixed){S.eggs.repairCards.A=(S.eggs.repairCards.A||0)+1;S.eggs.repairCards.B=(S.eggs.repairCards.B||0)+1;S.eggs._sleepDateFixed=true}
+  if(!S.eggs._sstExtraCard){S.eggs.repairCards.B=(S.eggs.repairCards.B||0)+1;S.eggs._sstExtraCard=true}
+}
 
 /* ═══ 判定函数 ═══ */
 function isBothOnTime(r){if(!r||!r.A||!r.A.s||!r.A.w||!r.B||!r.B.s||!r.B.w)return false;return isWakeOnTime(r.A.w,S.targets.A.wake)&&isWakeOnTime(r.B.w,S.targets.B.wake)}
