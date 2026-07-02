@@ -41,7 +41,8 @@ function defaults() {
       wallpaperCount: 0,
       repairCards: { A: 1, B: 1 },
       _sleepDateFixed: false,
-      _sstExtraCard: false
+      _sstExtraCard: false,
+      _sstExtraCard2: false
     }
   };
 }
