@@ -230,24 +230,16 @@ var lastH='',eggQueue=[],eggShowing=false;
 /* ═══ 时间判定 ═══ */
 function isSleepOnTime(a){var m=pM(a);return m>=1320||m<=30}
 function isWakeOnTime(a,tg){var a2=pM(a),t2=pM(tg),d=a2-t2;if(d>720)d-=1440;if(d<-720)d+=1440;return d>=-180&&d<=0}
-
-/* ═══ 窗口判定 ═══ */
 function canSleepNow(){var h=now().getHours(),m=now().getMinutes(),mins=h*60+m;return mins>=1320||mins<=30}
-function canWakeNow(u){var pend=findPendingSleep(u);if(!pend)return false;var sMins=pM(pend.rec.s),nMins=pM(tS(now())),tMins=pM(S.targets[u].wake);var toNow=nMins-sMins;if(toNow<0)toNow+=1440;var toTarget=tMins-sMins;if(toTarget<0)toTarget+=1440;return toNow>=180&&toNow<=toTarget}
 
 /* ═══ 睡眠归属与待完成查找 ═══ */
 function getSleepDate(u){var d=new Date(),h=d.getHours(),m=d.getMinutes();if(h===0&&m<=30){var yd=new Date(d);yd.setDate(d.getDate()-1);var yk=yd.getFullYear()+'-'+p2(yd.getMonth()+1)+'-'+p2(yd.getDate());var yr=S.recs[yk]&&S.recs[yk][u];if(!yr||!yr.s)return yk}return td()}
 function findPendingSleep(u){for(var i=0;i<3;i++){var cd=new Date();cd.setDate(cd.getDate()-i);var k=cd.getFullYear()+'-'+p2(cd.getMonth()+1)+'-'+p2(cd.getDate());var rec=S.recs[k];if(rec&&rec[u]&&rec[u].s&&!rec[u].w)return{date:k,rec:rec[u]}}return null}
 function getRecentRecord(u){for(var i=0;i<3;i++){var cd=new Date();cd.setDate(cd.getDate()-i);var k=cd.getFullYear()+'-'+p2(cd.getMonth()+1)+'-'+p2(cd.getDate());var rec=S.recs[k]&&S.recs[k][u];if(rec&&rec.s)return{date:k,s:rec.s,w:rec.w}}return null}
+function canWakeNow(u){var pend=findPendingSleep(u);if(!pend)return false;var sMins=pM(pend.rec.s),nMins=pM(tS(now())),elapsed=nMins-sMins;if(elapsed<0)elapsed+=1440;return elapsed>=180}
 
 /* ═══ 彩蛋初始化 ═══ */
-function ensureEggs(){
-  if(!S.eggs)S.eggs={shards:{A:0,B:0},freePass:{A:0,B:0},backpack:[],weeklyEgg:null,lastDailyEgg:{A:null,B:null},lastWeeklyEgg:null,albumMarked:{A:false,B:false},voiceMarked:{A:false,B:false},unlockMonth:null,wallpaperCount:0,repairCards:{A:1,B:1},_sleepDateFixed:false,_sstExtraCard:false};
-  if(!S.eggs.repairCards)S.eggs.repairCards={A:1,B:1};
-  if(!S.eggs._sleepDateFixed){S.eggs.repairCards.A=(S.eggs.repairCards.A||0)+1;S.eggs.repairCards.B=(S.eggs.repairCards.B||0)+1;S.eggs._sleepDateFixed=true}
-  if(!S.eggs._sstExtraCard){S.eggs.repairCards.B=(S.eggs.repairCards.B||0)+1;S.eggs._sstExtraCard=true}
-  if(!S.eggs._sstExtraCard2){S.eggs.repairCards.B=(S.eggs.repairCards.B||0)+1;S.eggs._sstExtraCard2=true}
-}
+function ensureEggs(){if(!S.eggs)S.eggs={shards:{A:0,B:0},freePass:{A:0,B:0},backpack:[],weeklyEgg:null,lastDailyEgg:{A:null,B:null},lastWeeklyEgg:null,albumMarked:{A:false,B:false},voiceMarked:{A:false,B:false},unlockMonth:null,wallpaperCount:0,repairCards:{A:1,B:1},_sleepDateFixed:false,_sstExtraCard:false,_sstExtraCard2:false};if(!S.eggs.repairCards)S.eggs.repairCards={A:1,B:1};if(!S.eggs._sleepDateFixed){S.eggs.repairCards.A=(S.eggs.repairCards.A||0)+1;S.eggs.repairCards.B=(S.eggs.repairCards.B||0)+1;S.eggs._sleepDateFixed=true}if(!S.eggs._sstExtraCard){S.eggs.repairCards.B=(S.eggs.repairCards.B||0)+1;S.eggs._sstExtraCard=true}if(!S.eggs._sstExtraCard2){S.eggs.repairCards.B=(S.eggs.repairCards.B||0)+1;S.eggs._sstExtraCard2=true}}
 
 /* ═══ 判定函数 ═══ */
 function isBothOnTime(r){if(!r||!r.A||!r.A.s||!r.A.w||!r.B||!r.B.s||!r.B.w)return false;return isWakeOnTime(r.A.w,S.targets.A.wake)&&isWakeOnTime(r.B.w,S.targets.B.wake)}
@@ -301,27 +293,27 @@ function rHome(){
   var hCls=uW?'wk':uS?'sl':'',bth=uS&&!uW?' breathing':'';
   var bdgC,bdgT;
   if(uW){bdgC=isWakeOnTime(uW,t[u].wake)?'bo':'bl';bdgT=isWakeOnTime(uW,t[u].wake)?'✓ 准时起床':'起晚了'}
-  else if(uS){if(canWakeNow(u)){bdgC='bs';bdgT='💤 睡觉中'}else{bdgC='bl';bdgT='⏰ 已过目标时间'}}
+  else if(uS){bdgC='bs';bdgT='💤 睡觉中'}
   else{bdgC='bw';bdgT='等待打卡'}
   var oC,oT;
-  if(oW){oC=isWakeOnTime(oW,t[o].wake)?'bo':'bl';oT='✓ 起床 '+oW}
-  else if(oS){if(canWakeNow(o)){oC='bs';oT='💤 睡觉 '+oS}else{oC='bl';oT='⏰ 未起床'}}
+  if(oW){oC=isWakeOnTime(oW,t[o].wake)?'bo':'bl';oT=(isWakeOnTime(oW,t[o].wake)?'✓ 起床 ':'起晚了 ')+oW}
+  else if(oS){oC='bs';oT='💤 睡觉 '+oS}
   else{oC='bw';oT='等待打卡'}
-  var sD=uPend||!canSleepNow()?' disabled':'',wD=!uPend||!canWakeNow(u)?' disabled':'';
+  var sD=uPend?' disabled':'',wD=!uPend||!canWakeNow(u)?' disabled':'';
   document.getElementById('hc').innerHTML=
   '<div class="ut"><button class="ub ua '+(u==='A'?'on':'')+'" onclick="setU(\'A\')"><span class="ud" style="background:var(--aa)"></span>'+n.A+'</button><button class="ub ub2 '+(u==='B'?'on':'')+'" onclick="setU(\'B\')"><span class="ud" style="background:var(--ab)"></span>'+n.B+'</button></div>'+
   '<div class="hero '+hCls+bth+'"><div class="htop"><div class="hav '+(u==='A'?'ha':'hb')+'">'+n[u].charAt(0)+'</div><div class="hinfo"><div class="hname">'+n[u]+'</div><div class="hbadge '+bdgC+'">'+bdgT+'</div></div><div class="hpts"><span class="hpn">'+(S.points[u]||0)+'</span><span class="hpl">积分</span></div></div>'+
   '<div class="htimes"><div class="ht"><div class="htl">入睡</div><div class="htv '+(uS?'done':'')+'">'+(uS||'--:--')+'</div></div><div class="htd"></div><div class="ht"><div class="htl">起床</div><div class="htv '+(uW?'done':'')+'">'+(uW||'--:--')+'</div></div></div></div>'+
-  '<div class="acts"><button class="act asl" onclick="doSleep()"'+sD+'><span class="ai">🌙</span><span>准备睡觉啦</span><span class="as">22:00 ~ 00:30</span></button><button class="act awk" onclick="doWake()"'+wD+'><span class="ai">☀️</span><span>我醒来啦</span><span class="as">目标 '+t[u].wake+'</span></button></div>'+
+  '<div class="acts"><button class="act asl" onclick="doSleep()"'+sD+'><span class="ai">🌙</span><span>准备睡觉啦</span><span class="as">22:00 ~ 00:30 准时</span></button><button class="act awk" onclick="doWake()"'+wD+'><span class="ai">☀️</span><span>我醒来啦</span><span class="as">目标 '+t[u].wake+'</span></button></div>'+
   '<div class="ptr"><div class="pav '+(o==='A'?'pa':'pb')+'">'+n[o].charAt(0)+'</div><div><div class="pn">'+n[o]+'</div></div><div class="pbdg '+oC+'">'+oT+'</div></div>'+
   '<div class="msg">'+getMsg()+'</div>'
 }
 function setU(u){U=u;localStorage.setItem('hb_u',U);render()}
-function getMsg(){var n=S.names,h=now().getHours(),u=U,o=u==='A'?'B':'A';var uP=findPendingSleep(u),oP=findPendingSleep(o);if(uP&&oP)return'两人都已入睡 🌙 好好休息';if(uP){if(!canWakeNow(u))return n[u]+' 已入睡，但已过目标时间 ⏰';return n[u]+' 已入睡，'+n[o]+' 也快去休息~'}if(oP)return n[o]+' 已入睡，'+n[u]+' 也快去休息~';var uR=getRecentRecord(u),oR=getRecentRecord(o);if(uR&&uR.w&&oR&&oR.w){var ao=isWakeOnTime(uR.w,S.targets[u].wake),bo=isWakeOnTime(oR.w,S.targets[o].wake);return(ao&&bo)?'🎉 两人都准时起床，完美搭档！':'新的一天开始了，继续加油 💪'}if(canSleepNow())return'入睡时间到了，准备休息吧 🌙';if(h>=6&&h<10)return'早安！新的一天从早起开始 ☀️';var pts=(S.points.A||0)+(S.points.B||0);return pts>0?'已累计 <b>'+pts+'</b> 积分，继续坚持！':'开始你们的早睡早起之旅吧 ✨'}
+function getMsg(){var n=S.names,h=now().getHours(),u=U,o=u==='A'?'B':'A';var uP=findPendingSleep(u),oP=findPendingSleep(o);if(uP&&oP)return'两人都已入睡 🌙 好好休息';if(uP)return n[u]+' 已入睡，'+n[o]+' 也快去休息~';if(oP)return n[o]+' 已入睡，'+n[u]+' 也快去休息~';var uR=getRecentRecord(u),oR=getRecentRecord(o);if(uR&&uR.w&&oR&&oR.w){var ao=isWakeOnTime(uR.w,S.targets[u].wake),bo=isWakeOnTime(oR.w,S.targets[o].wake);return(ao&&bo)?'🎉 两人都准时起床，完美搭档！':'新的一天开始了，继续加油 💪'}if(canSleepNow())return'入睡时间到了，准备休息吧 🌙';if(h>=6&&h<10)return'早安！新的一天从早起开始 ☀️';var pts=(S.points.A||0)+(S.points.B||0);return pts>0?'已累计 <b>'+pts+'</b> 积分，继续坚持！':'开始你们的早睡早起之旅吧 ✨'}
 
 /* ═══ 打卡 ═══ */
-async function doSleep(){var u=U,n=S.names;if(findPendingSleep(u)){toast('还有未完成的睡眠，请先按「我醒来啦」','wn');return}if(!canSleepNow()){toast('入睡打卡时间：22:00 ~ 00:30','wn');return}var sd=getSleepDate(u);if(!S.recs[sd])S.recs[sd]={A:{s:null,w:null,sp:0,wp:0},B:{s:null,w:null,sp:0,wp:0}};if(S.recs[sd][u].s){toast('该日期已有入睡记录','wn');return}S.recs[sd][u].s=tS(now());S.recs[sd][u].sp=1;S.points[u]=(S.points[u]||0)+1;var ok=await save();toast('🌙 '+n[u]+' 准时入睡 +1！','ok');render();if(ok)setTimeout(function(){checkDailyEgg(u);checkMilestones()},1500)}
-async function doWake(){var u=U,n=S.names,t=S.targets;if(!canWakeNow(u)){var pend=findPendingSleep(u);if(!pend){toast('没有待完成的睡眠记录','wn');return}toast('未在可打卡时间范围内','wn');return}var pend=findPendingSleep(u);var rec=S.recs[pend.date][u];rec.w=tS(now());var ok=isWakeOnTime(rec.w,t[u].wake);if(ok){rec.wp=1;S.points[u]=(S.points[u]||0)+1}var saved=await save();toast(ok?'☀️ '+n[u]+' 准时起床 +1！':'☀️ '+n[u]+' 已记录起床',ok?'ok':'wn');render();if(saved)setTimeout(function(){checkDailyEgg(u);checkMilestones()},1500)}
+async function doSleep(){var u=U,n=S.names;if(findPendingSleep(u)){toast('还有未完成的睡眠，请先按「我醒来啦」','wn');return}var sd=getSleepDate(u);if(!S.recs[sd])S.recs[sd]={A:{s:null,w:null,sp:0,wp:0},B:{s:null,w:null,sp:0,wp:0}};if(S.recs[sd][u].s){toast('该日期已有入睡记录','wn');return}S.recs[sd][u].s=tS(now());var ok=isSleepOnTime(S.recs[sd][u].s);if(ok){S.recs[sd][u].sp=1;S.points[u]=(S.points[u]||0)+1}var saved=await save();toast(ok?'🌙 '+n[u]+' 准时入睡 +1！':'🌙 '+n[u]+' 已记录入睡（未按时）',ok?'ok':'wn');render();if(saved)setTimeout(function(){checkDailyEgg(u);checkMilestones()},1500)}
+async function doWake(){var u=U,n=S.names,t=S.targets;var pend=findPendingSleep(u);if(!pend){toast('没有待完成的睡眠记录','wn');return}var sMins=pM(pend.rec.s),nMins=pM(tS(now())),elapsed=nMins-sMins;if(elapsed<0)elapsed+=1440;if(elapsed<180){toast('至少睡满 3 小时才能打卡起床','wn');return}var rec=S.recs[pend.date][u];rec.w=tS(now());var ok=isWakeOnTime(rec.w,t[u].wake);if(ok){rec.wp=1;S.points[u]=(S.points[u]||0)+1}var saved=await save();toast(ok?'☀️ '+n[u]+' 准时起床 +1！':'☀️ '+n[u]+' 已记录起床（起晚了）',ok?'ok':'wn');render();if(saved)setTimeout(function(){checkDailyEgg(u);checkMilestones()},1500)}
 
 /* ═══ SHOP ═══ */
 function rShop(){var n=S.names,my=S.points[U]||0;document.getElementById('pg-shop').innerHTML='<div class="ph"><div class="pc pca"><div class="pcn">'+n.A+'</div><div class="pcv">'+(S.points.A||0)+'</div><div class="pcl">积分</div></div><div class="pc pcb"><div class="pcn">'+n.B+'</div><div class="pcv">'+(S.points.B||0)+'</div><div class="pcl">积分</div></div></div><div class="st">积分商城 <span>'+S.shop.length+' 件</span></div><div class="sgrid">'+S.shop.map(function(i){return '<div class="si"><button class="sidl" onclick="delSi('+i.id+')">×</button><div class="sie">'+i.e+'</div><div class="sin">'+i.n+'</div><div class="sid">'+(i.d||'')+'</div><div class="sic">'+i.c+' 积分</div><button class="sib" '+(my>=i.c?'':'disabled')+' onclick="redeem('+i.id+')">兑换</button></div>'}).join('')+'</div><button class="addb" onclick="openMo(\'mAdd\')">+ 添加奖品</button>'+(S.redeems.length?'<div class="st">兑换记录</div><div class="rl">'+[...S.redeems].reverse().slice(0,20).map(function(r){return '<div class="ri2"><span class="re">'+r.e+'</span><div class="rf"><b>'+r.n+'</b><small>'+S.names[r.by]+' · '+r.date+'</small></div><span class="rc">-'+r.c+'分</span></div>'}).join('')+'</div>':'')}
@@ -343,7 +335,7 @@ function rCal(){var d=new Date(),dw=d.getDay()||7,mn=new Date(d);mn.setDate(d.ge
 /* ═══ SETTINGS ═══ */
 function rSett(){var n=S.names,t=S.targets;document.getElementById('pg-settings').innerHTML='<div class="sg"><div class="sgt">👤 名字设置</div><span class="sgl">用户 A</span><input class="sgi" id="sNA" maxlength="6" value="'+n.A+'"><span class="sgl">用户 B</span><input class="sgi" id="sNB" maxlength="6" value="'+n.B+'"></div><div class="sg"><div class="sgt">🌙 起床目标</div><p class="sgdsc">入睡时间固定为 22:00 ~ 00:30，只需设置起床时间。</p><div class="sgr"><div><span class="sgl">'+n.A+' 起床</span><input class="sgi" type="time" id="sWA" value="'+t.A.wake+'"></div><div><span class="sgl">'+n.B+' 起床</span><input class="sgi" type="time" id="sWB" value="'+t.B.wake+'"></div></div></div><div class="sg"><div class="sgt">💾 保存</div><button class="sgb sgp" onclick="doSave()">保存设置</button></div><div class="sg"><div class="sgt">🗑️ 危险操作</div><p class="sgdsc">清除所有打卡记录、积分和商城数据，不可恢复。</p><button class="sgb sgd" onclick="doReset()">清除所有数据</button></div>'}
 async function doSave(){S.names.A=document.getElementById('sNA').value.trim()||'NYH';S.names.B=document.getElementById('sNB').value.trim()||'SST';S.targets.A.sleep='22:00';S.targets.A.wake=document.getElementById('sWA').value||'07:00';S.targets.B.sleep='22:00';S.targets.B.wake=document.getElementById('sWB').value||'07:00';await save();toast('设置已保存','ok');render()}
-async function doReset(){if(!confirm('确定要清除所有数据吗？此操作不可撤销！'))return;S={names:{A:'NYH',B:'SST'},targets:{A:{sleep:'22:00',wake:'07:00'},B:{sleep:'22:00',wake:'07:00'}},points:{A:0,B:0},recs:{},shop:[{id:1,e:'🧋',n:'请喝奶茶',d:'对方请你喝一杯奶茶',c:7},{id:2,e:'🎬',n:'选电影之夜',d:'今晚你来选电影',c:5},{id:3,e:'🏠',n:'免做家务',d:'免做一次家务活',c:10},{id:4,e:'💆',n:'按摩15分钟',d:'对方给你按摩放松',c:8},{id:5,e:'🍰',n:'请吃甜品',d:'对方请你吃一份甜品',c:5},{id:6,e:'💤',n:'赖床券',d:'周末多睡1小时不被叫醒',c:6},{id:7,e:'📱',n:'免打扰1小时',d:'1小时不被打扰的自由',c:3},{id:8,e:'🍽️',n:'指定晚餐',d:'你来指定今晚吃什么',c:8}],redeems:[],nextShopId:9,eggs:{shards:{A:0,B:0},freePass:{A:0,B:0},backpack:[],weeklyEgg:null,lastDailyEgg:{A:null,B:null},lastWeeklyEgg:null,albumMarked:{A:false,B:false},voiceMarked:{A:false,B:false},unlockMonth:null,wallpaperCount:0,repairCards:{A:1,B:1},_sleepDateFixed:false}};ensureEggs();await save();toast('数据已清除','ok');render()}
+async function doReset(){if(!confirm('确定要清除所有数据吗？此操作不可撤销！'))return;S={names:{A:'NYH',B:'SST'},targets:{A:{sleep:'22:00',wake:'07:00'},B:{sleep:'22:00',wake:'07:00'}},points:{A:0,B:0},recs:{},shop:[{id:1,e:'🧋',n:'请喝奶茶',d:'对方请你喝一杯奶茶',c:7},{id:2,e:'🎬',n:'选电影之夜',d:'今晚你来选电影',c:5},{id:3,e:'🏠',n:'免做家务',d:'免做一次家务活',c:10},{id:4,e:'💆',n:'按摩15分钟',d:'对方给你按摩放松',c:8},{id:5,e:'🍰',n:'请吃甜品',d:'对方请你吃一份甜品',c:5},{id:6,e:'💤',n:'赖床券',d:'周末多睡1小时不被叫醒',c:6},{id:7,e:'📱',n:'免打扰1小时',d:'1小时不被打扰的自由',c:3},{id:8,e:'🍽️',n:'指定晚餐',d:'你来指定今晚吃什么',c:8}],redeems:[],nextShopId:9,eggs:{shards:{A:0,B:0},freePass:{A:0,B:0},backpack:[],weeklyEgg:null,lastDailyEgg:{A:null,B:null},lastWeeklyEgg:null,albumMarked:{A:false,B:false},voiceMarked:{A:false,B:false},unlockMonth:null,wallpaperCount:0,repairCards:{A:1,B:1},_sleepDateFixed:false,_sstExtraCard:false,_sstExtraCard2:false}};ensureEggs();await save();toast('数据已清除','ok');render()}
 
 /* ═══ INIT ═══ */
 document.querySelectorAll('.tab').forEach(function(b){b.addEventListener('click',function(){sTab(b.dataset.pg)})});
