@@ -11,8 +11,8 @@ function defaults() {
   return {
     names: { A: 'NYH', B: 'SST' },
     targets: {
-      A: { sleep: '23:00', wake: '07:00' },
-      B: { sleep: '23:00', wake: '07:00' }
+      A: { sleep: '22:00', wake: '07:00' },
+      B: { sleep: '22:00', wake: '07:00' }
     },
     points: { A: 0, B: 0 },
     recs: {},
