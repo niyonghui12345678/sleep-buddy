@@ -241,7 +241,16 @@ function isWakeOnTime(a,tg){var a2=pM(a),t2=pM(tg),d=a2-t2;if(d>720)d-=1440;if(d
 function canSleepNow(){var h=now().getHours(),m=now().getMinutes(),mins=h*60+m;return mins>=1320||mins<=30}
 
 /* ═══ 睡眠归属与待完成查找 ═══ */
-function getSleepDate(u){var d=new Date(),h=d.getHours(),m=d.getMinutes();if(h===0&&m<=30){var yd=new Date(d);yd.setDate(d.getDate()-1);var yk=yd.getFullYear()+'-'+p2(yd.getMonth()+1)+'-'+p2(yd.getDate());var yr=S.recs[yk]&&S.recs[yk][u];if(!yr||!yr.s)return yk}return td()}
+function getSleepDate(u){
+  var d=new Date(),h=d.getHours();
+  if(h<8){
+    var yd=new Date(d);yd.setDate(d.getDate()-1);
+    var yk=yd.getFullYear()+'-'+p2(yd.getMonth()+1)+'-'+p2(yd.getDate());
+    var yr=S.recs[yk]&&S.recs[yk][u];
+    if(!yr||!yr.s)return yk
+  }
+  return td()
+}
 function findPendingSleep(u){for(var i=0;i<3;i++){var cd=new Date();cd.setDate(cd.getDate()-i);var k=cd.getFullYear()+'-'+p2(cd.getMonth()+1)+'-'+p2(cd.getDate());var rec=S.recs[k];if(rec&&rec[u]&&rec[u].s&&!rec[u].w)return{date:k,rec:rec[u]}}return null}
 function getRecentRecord(u){for(var i=0;i<3;i++){var cd=new Date();cd.setDate(cd.getDate()-i);var k=cd.getFullYear()+'-'+p2(cd.getMonth()+1)+'-'+p2(cd.getDate());var rec=S.recs[k]&&S.recs[k][u];if(rec&&rec.s)return{date:k,s:rec.s,w:rec.w}}return null}
 function canWakeNow(u){var pend=findPendingSleep(u);if(!pend)return false;var sMins=pM(pend.rec.s),nMins=pM(tS(now())),elapsed=nMins-sMins;if(elapsed<0)elapsed+=1440;return elapsed>=180}
