@@ -257,18 +257,8 @@ function canWakeNow(u){var pend=findPendingSleep(u);if(!pend)return false;var sM
 
 /* ═══ 彩蛋初始化 ═══ */
 function ensureEggs(){
-  if(!S.eggs)S.eggs={shards:{A:0,B:0},freePass:{A:0,B:0},backpack:[],weeklyEgg:null,lastDailyEgg:{A:null,B:null},lastWeeklyEgg:null,albumMarked:{A:false,B:false},voiceMarked:{A:false,B:false},unlockMonth:null,wallpaperCount:0,repairCards:{A:1,B:1},_sleepDateFixed:false,_sstExtraCard:false,_sstExtraCard2:false};
+  if(!S.eggs)S.eggs={shards:{A:0,B:0},freePass:{A:0,B:0},backpack:[],weeklyEgg:null,lastDailyEgg:{A:null,B:null},lastWeeklyEgg:null,albumMarked:{A:false,B:false},voiceMarked:{A:false,B:false},unlockMonth:null,wallpaperCount:0,repairCards:{A:1,B:1}};
   if(!S.eggs.repairCards)S.eggs.repairCards={A:1,B:1};
-  if(!S.eggs._sleepDateFixed){S.eggs.repairCards.A=(S.eggs.repairCards.A||0)+1;S.eggs.repairCards.B=(S.eggs.repairCards.B||0)+1;S.eggs._sleepDateFixed=true}
-  if(!S.eggs._sstExtraCard){S.eggs.repairCards.B=(S.eggs.repairCards.B||0)+1;S.eggs._sstExtraCard=true}
-  if(!S.eggs._sstExtraCard2){S.eggs.repairCards.B=(S.eggs.repairCards.B||0)+1;S.eggs._sstExtraCard2=true}
-  /* ★ 补签卡发放：NYH +1, SST +1 */
-  if(!S.eggs._giveRepairCard2025){S.eggs.repairCards.A=(S.eggs.repairCards.A||0)+1;S.eggs.repairCards.B=(S.eggs.repairCards.B||0)+1;S.eggs._giveRepairCard2025=true}
-  /* ★ NYH 额外 +1 */
-  if(!S.eggs._giveNyhExtra2025){S.eggs.repairCards.A=(S.eggs.repairCards.A||0)+1;S.eggs._giveNyhExtra2025=true}
-  /* ★ SST 额外 +1（本次新增） */
-  if(!S.eggs._giveSstExtra2025){S.eggs.repairCards.B=(S.eggs.repairCards.B||0)+1;S.eggs._giveSstExtra2025=true}
-  /* 迁移：给所有背包卡片加 used 标记 */
   if(S.eggs.backpack){S.eggs.backpack.forEach(function(item){if(item.used===undefined)item.used=false})}
   if(S.eggs.weeklyEgg&&S.eggs.weeklyEgg.used===undefined){S.eggs.weeklyEgg.used=false}
 }
