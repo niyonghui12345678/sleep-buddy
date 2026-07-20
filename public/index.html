@@ -223,6 +223,7 @@ header{flex-shrink:0;padding:14px 20px 6px;display:flex;align-items:center;justi
 </div>
 <div class="tst" id="toast"></div>
 <div class="mbg" id="mAdd"><div class="md"><div class="mt">添加奖品</div><div class="mf"><div class="ml">表情图标</div><input class="mi" id="mEmoji" maxlength="4" placeholder="如 🧋"></div><div class="mf"><div class="ml">奖品名称</div><input class="mi" id="mName" maxlength="12" placeholder="如 请喝奶茶"></div><div class="mf"><div class="ml">描述 (选填)</div><input class="mi" id="mDesc" maxlength="30" placeholder="如 对方请你喝一杯"></div><div class="mf"><div class="ml">所需积分</div><input class="mi" id="mCost" type="number" min="1" max="999" placeholder="如 7"></div><div class="ma2"><button class="mb mbc" onclick="closeMo('mAdd')">取消</button><button class="mb mbs" onclick="addShopItem()">添加</button></div></div></div>
+<div class="mbg" id="mRedeem"><div class="md"><div class="mt">确认兑换</div><div style="text-align:center;font-size:2.5rem;margin-bottom:10px" id="rEmoji"></div><div style="text-align:center;font-weight:700;font-size:1rem;margin-bottom:4px" id="rName"></div><div style="text-align:center;font-size:.75rem;color:var(--sc);margin-bottom:16px;line-height:1.5" id="rDesc"></div><div style="text-align:center;font-size:.82rem;color:var(--gn);font-family:'JetBrains Mono',monospace;margin-bottom:6px" id="rCost"></div><div class="ma2"><button class="mb mbc" onclick="closeMo('mRedeem')">取消</button><button class="mb mbs" id="rConfirm">确认兑换</button></div></div></div>
 <div class="egg-overlay" id="eggOverlay"><div class="egg-card ec" id="eggCard"></div></div>
 <div class="wp-modal" id="wpModal"><img id="wpImg" src=""><p>长按图片保存到相册</p><button onclick="document.getElementById('wpModal').classList.remove('show')">关闭</button></div>
 
@@ -255,7 +256,6 @@ function ensureEggs(){
   if(!S.eggs._giveNyhExtra2025){S.eggs.repairCards.A=(S.eggs.repairCards.A||0)+1;S.eggs._giveNyhExtra2025=true}
   if(!S.eggs._giveSstExtra2025){S.eggs.repairCards.B=(S.eggs.repairCards.B||0)+1;S.eggs._giveSstExtra2025=true}
   if(!S.eggs._giveSstExtra2025b){S.eggs.repairCards.B=(S.eggs.repairCards.B||0)+1;S.eggs._giveSstExtra2025b=true}
-  if(!S.eggs._giveSstExtra2025c){S.eggs.repairCards.B=(S.eggs.repairCards.B||0)+1;S.eggs._giveSstExtra2025c=true}
   if(!S.eggs._giveNyh2025d){S.eggs.repairCards.A=(S.eggs.repairCards.A||0)+2;S.eggs._giveNyh2025d=true}
   if(!S.eggs._giveSst2025d){S.eggs.repairCards.B=(S.eggs.repairCards.B||0)+1;S.eggs._giveSst2025d=true}
   if(!S.eggs._giveBoth2025e){S.eggs.repairCards.A=(S.eggs.repairCards.A||0)+1;S.eggs.repairCards.B=(S.eggs.repairCards.B||0)+1;S.eggs._giveBoth2025e=true}
@@ -345,8 +345,10 @@ async function doSleep(){var u=U,n=S.names;if(findPendingSleep(u)){toast('还有
 async function doWake(){var u=U,n=S.names,t=S.targets;var pend=findPendingSleep(u);if(!pend){toast('没有待完成的睡眠记录','wn');return}var sMins=pM(pend.rec.s),nMins=pM(tS(now())),elapsed=nMins-sMins;if(elapsed<0)elapsed+=1440;if(elapsed<180){toast('至少睡满 3 小时才能打卡起床','wn');return}var rec=S.recs[pend.date][u];rec.w=tS(now());var ok=isWakeOnTime(rec.w,t[u].wake);if(ok){rec.wp=1;S.points[u]=(S.points[u]||0)+1}var saved=await save();toast(ok?'☀️ '+n[u]+' 准时起床 +1！':'☀️ '+n[u]+' 已记录起床（起晚了）',ok?'ok':'wn');render();if(saved)setTimeout(function(){checkDailyEgg(u);checkMilestones()},1500)}
 
 /* ═══ SHOP ═══ */
-function rShop(){var n=S.names,my=S.points[U]||0;document.getElementById('pg-shop').innerHTML='<div class="ph"><div class="pc pca"><div class="pcn">'+n.A+'</div><div class="pcv">'+(S.points.A||0)+'</div><div class="pcl">积分</div></div><div class="pc pcb"><div class="pcn">'+n.B+'</div><div class="pcv">'+(S.points.B||0)+'</div><div class="pcl">积分</div></div></div><div class="st">积分商城 <span>'+S.shop.length+' 件</span></div><div class="sgrid">'+S.shop.map(function(i){return '<div class="si"><button class="sidl" onclick="delSi('+i.id+')">×</button><div class="sie">'+i.e+'</div><div class="sin">'+i.n+'</div><div class="sid">'+(i.d||'')+'</div><div class="sic">'+i.c+' 积分</div><button class="sib" '+(my>=i.c?'':'disabled')+' onclick="redeem('+i.id+')">兑换</button></div>'}).join('')+'</div><button class="addb" onclick="openMo(\'mAdd\')">+ 添加奖品</button>'+(S.redeems.length?'<div class="st">兑换记录</div><div class="rl">'+[...S.redeems].reverse().slice(0,20).map(function(r){return '<div class="ri2"><span class="re">'+r.e+'</span><div class="rf"><b>'+r.n+'</b><small>'+S.names[r.by]+' · '+r.date+'</small></div><span class="rc">-'+r.c+'分</span></div>'}).join('')+'</div>':'')}
-async function redeem(id){var i=S.shop.find(function(x){return x.id===id});if(!i)return;var u=U,pts=S.points[u]||0;if(pts<i.c){toast('积分不足哦','wn');return}S.points[u]-=i.c;S.redeems.push({id:i.id,e:i.e,n:i.n,c:i.c,by:u,date:td()});await save();toast('🎁 '+S.names[u]+' 兑换了「'+i.n+'」！','ok');render()}
+var redeemItem=null;
+function confirmRedeem(id){var i=S.shop.find(function(x){return x.id===id});if(!i)return;var u=U,pts=S.points[u]||0;if(pts<i.c){toast('积分不足哦','wn');return}redeemItem=i;document.getElementById('rEmoji').textContent=i.e;document.getElementById('rName').textContent=i.n;document.getElementById('rDesc').textContent=i.d||'';document.getElementById('rCost').textContent=pts+' → '+(pts-i.c)+'  (−'+i.c+'积分)';document.getElementById('rConfirm').onclick=function(){doRedeem()};openMo('mRedeem')}
+async function doRedeem(){if(!redeemItem)return;var i=redeemItem,u=U;S.points[u]-=i.c;S.redeems.push({id:i.id,e:i.e,n:i.n,c:i.c,by:u,date:td()});await save();closeMo('mRedeem');redeemItem=null;toast('🎁 '+S.names[u]+' 兑换了「'+i.n+'」！','ok');render()}
+function rShop(){var n=S.names,my=S.points[U]||0;document.getElementById('pg-shop').innerHTML='<div class="ph"><div class="pc pca"><div class="pcn">'+n.A+'</div><div class="pcv">'+(S.points.A||0)+'</div><div class="pcl">积分</div></div><div class="pc pcb"><div class="pcn">'+n.B+'</div><div class="pcv">'+(S.points.B||0)+'</div><div class="pcl">积分</div></div></div><div class="st">积分商城 <span>'+S.shop.length+' 件</span></div><div class="sgrid">'+S.shop.map(function(i){return '<div class="si"><button class="sidl" onclick="delSi('+i.id+')">×</button><div class="sie">'+i.e+'</div><div class="sin">'+i.n+'</div><div class="sid">'+(i.d||'')+'</div><div class="sic">'+i.c+' 积分</div><button class="sib" '+(my>=i.c?'':'disabled')+' onclick="confirmRedeem('+i.id+')">兑换</button></div>'}).join('')+'</div><button class="addb" onclick="openMo(\'mAdd\')">+ 添加奖品</button>'+(S.redeems.length?'<div class="st">兑换记录</div><div class="rl">'+[...S.redeems].reverse().slice(0,20).map(function(r){return '<div class="ri2"><span class="re">'+r.e+'</span><div class="rf"><b>'+r.n+'</b><small>'+S.names[r.by]+' · '+r.date+'</small></div><span class="rc">-'+r.c+'分</span></div>'}).join('')+'</div>':'')}
 async function delSi(id){S.shop=S.shop.filter(function(i){return i.id!==id});await save();render()}
 async function addShopItem(){var e=document.getElementById('mEmoji').value.trim()||'🎁',n=document.getElementById('mName').value.trim(),d=document.getElementById('mDesc').value.trim(),c=parseInt(document.getElementById('mCost').value)||5;if(!n){toast('请输入奖品名称','wn');return}S.shop.push({id:S.nextShopId++,e:e,n:n,d:d,c:c});await save();closeMo('mAdd');['mEmoji','mName','mDesc','mCost'].forEach(function(id){document.getElementById(id).value=''});toast('已添加「'+n+'」','ok');render()}
 
@@ -356,13 +358,11 @@ function rEgg(){
   var n=S.names;
   var pg=document.getElementById('pg-egg');
   var h='';
-
   h+='<div class="st">⭐ 碎片</div>';
   h+='<div class="bp-sum">';
   h+='<div class="bp-card"><div class="bp-icon">⭐</div><div class="bp-name">'+n.A+' 碎片</div><div class="bp-val">'+S.eggs.shards.A+'/3</div></div>';
   h+='<div class="bp-card"><div class="bp-icon">⭐</div><div class="bp-name">'+n.B+' 碎片</div><div class="bp-val">'+S.eggs.shards.B+'/3</div></div>';
   h+='</div>';
-
   var fpA=S.eggs.freePass.A||0,fpB=S.eggs.freePass.B||0;
   h+='<div class="st">🎫 免罚券</div>';
   h+='<div class="bp-sum">';
@@ -377,14 +377,12 @@ function rEgg(){
     h+='</div>';
     if(!fpDay)h+='<div class="bp-note">最近 30 天没有断签</div>';
   }
-
   var rcA=(S.eggs.repairCards||{}).A||0,rcB=(S.eggs.repairCards||{}).B||0;
   h+='<div class="st">🔧 补签卡</div>';
   h+='<div class="bp-sum">';
   h+='<div class="bp-card bp-green"><div class="bp-icon">🔧</div><div class="bp-name">'+n.A+' 补签卡</div><div class="bp-val">'+rcA+'</div></div>';
   h+='<div class="bp-card bp-green"><div class="bp-icon">🔧</div><div class="bp-name">'+n.B+' 补签卡</div><div class="bp-val">'+rcB+'</div></div>';
   h+='</div>';
-
   var repDay=getRepairDayFor(U);
   h+='<div class="st">🔧 补签操作</div>';
   h+='<div class="bp-mile"><div class="bp-mile-top"><span class="bp-mile-icon">🔧</span><span class="bp-mile-name">补签</span><span class="bp-mile-status '+(repDay?'ms-locked':'ms-unlock')+'">'+(repDay?'断签: '+repDay.slice(5)+' ⚠️':'连续中 ✓')+'</span></div>';
@@ -393,30 +391,15 @@ function rEgg(){
     h+='<div class="bp-actions"><button class="bp-act bp-act-primary" '+(pts<40?'disabled':'')+' onclick="buyRepairCard()">兑换补签卡（40积分）</button><button class="bp-act bp-act-ghost" '+(rc2<=0?'disabled':'')+' onclick="useRepairCard()">使用补签卡（'+rc2+'张）</button></div>';
   }
   h+='</div>';
-
-  var cardTypes=[
-    {type:'favor',icon:'💛',name:'偏爱卡'},
-    {type:'reverse',icon:'🔄',name:'监督卡'},
-    {type:'feed',icon:'🧋',name:'投喂券'}
-  ];
+  var cardTypes=[{type:'favor',icon:'💛',name:'偏爱卡'},{type:'reverse',icon:'🔄',name:'监督卡'},{type:'feed',icon:'🧋',name:'投喂券'}];
   cardTypes.forEach(function(ct){
     var unused=[],used=[];
-    S.eggs.backpack.forEach(function(b,i){
-      if(b.type===ct.type){if(b.used)used.push({item:b,idx:i});else unused.push({item:b,idx:i})}
-    });
+    S.eggs.backpack.forEach(function(b,i){if(b.type===ct.type){if(b.used)used.push({item:b,idx:i});else unused.push({item:b,idx:i})}});
     if(unused.length===0&&used.length===0)return;
     h+='<div class="st">'+ct.icon+' '+ct.name+' <span style="font-weight:400;font-size:.72rem;color:var(--dm)">('+unused.length+' 未使用)</span></div>';
-    unused.forEach(function(entry){
-      h+='<div class="bp-hi"><span class="bp-hi-icon">'+ct.icon+'</span><span class="bp-hi-name">'+ct.name+'</span><span class="bp-hi-date">'+(entry.item.by?S.names[entry.item.by]+' · ':'')+entry.item.date+'</span><button class="bp-use-btn" onclick="useEggCard('+entry.idx+')">使用</button></div>';
-    });
-    if(used.length>0){
-      h+='<div class="bp-sec-sub">已使用</div>';
-      used.forEach(function(entry){
-        h+='<div class="bp-hi bp-used-item"><span class="bp-hi-icon">'+ct.icon+'</span><span class="bp-hi-name">'+ct.name+'</span><span class="bp-hi-date">'+(entry.item.by?S.names[entry.item.by]+' · ':'')+entry.item.date+'</span><span class="bp-used-label">已使用</span></div>';
-      });
-    }
+    unused.forEach(function(entry){h+='<div class="bp-hi"><span class="bp-hi-icon">'+ct.icon+'</span><span class="bp-hi-name">'+ct.name+'</span><span class="bp-hi-date">'+(entry.item.by?S.names[entry.item.by]+' · ':'')+entry.item.date+'</span><button class="bp-use-btn" onclick="useEggCard('+entry.idx+')">使用</button></div>'});
+    if(used.length>0){h+='<div class="bp-sec-sub">已使用</div>';used.forEach(function(entry){h+='<div class="bp-hi bp-used-item"><span class="bp-hi-icon">'+ct.icon+'</span><span class="bp-hi-name">'+ct.name+'</span><span class="bp-hi-date">'+(entry.item.by?S.names[entry.item.by]+' · ':'')+entry.item.date+'</span><span class="bp-used-label">已使用</span></div>'})}
   });
-
   var we=S.eggs.weeklyEgg;
   h+='<div class="st">本周彩蛋</div><div class="bp-weekly">';
   if(we){
@@ -428,7 +411,6 @@ function rEgg(){
     }else{h+='<div class="bw-empty">本周彩蛋已查看</div>'}
   }else{h+='<div class="bw-empty">下周一解锁新彩蛋 🎲</div>'}
   h+='</div>';
-
   var albumUnlocked=S.eggs.backpack.some(function(b){return b.type==='album'});
   var voiceUnlocked=S.eggs.backpack.some(function(b){return b.type==='voice'});
   var giftUnlocked=S.eggs.backpack.some(function(b){return b.type==='gift'});
@@ -444,17 +426,13 @@ function rEgg(){
     if(meetUnlocked)h+='<div class="bp-mile"><div class="bp-mile-top"><span class="bp-mile-icon">🎫</span><span class="bp-mile-name">线下见面券</span><span class="bp-mile-status ms-unlock">已解锁 ✓</span></div></div>';
     if(memUnlocked)h+='<div class="bp-mile"><div class="bp-mile-top"><span class="bp-mile-icon">📖</span><span class="bp-mile-name">全年纪念手册</span><span class="bp-mile-status ms-unlock">已解锁 ✓</span></div></div>';
   }
-
   if(S.eggs.backpack.length>0){
     h+='<div class="st">彩蛋历史</div><div class="bp-hist">';
     var allEggs=DAILY_EGGS.concat(WEEKLY_EGGS);
     for(var k in MILE_EGGS)allEggs.push({type:k,icon:MILE_EGGS[k].icon,name:MILE_EGGS[k].name});
     [...S.eggs.backpack].reverse().forEach(function(b){
       var eg=allEggs.find(function(e){return e.type===b.type});
-      if(eg){
-        var usedMark=b.used?' <span style="color:var(--dm);font-size:.6rem">已使用</span>':'';
-        h+='<div class="bp-hi'+(b.used?' bp-used-item':'')+'"><span class="bp-hi-icon">'+eg.icon+'</span><span class="bp-hi-name">'+eg.name+usedMark+'</span><span class="bp-hi-date">'+(b.by?S.names[b.by]+' · ':'')+b.date+'</span></div>';
-      }
+      if(eg){var usedMark=b.used?' <span style="color:var(--dm);font-size:.6rem">已使用</span>':'';h+='<div class="bp-hi'+(b.used?' bp-used-item':'')+'"><span class="bp-hi-icon">'+eg.icon+'</span><span class="bp-hi-name">'+eg.name+usedMark+'</span><span class="bp-hi-date">'+(b.by?S.names[b.by]+' · ':'')+b.date+'</span></div>'}
     });
     h+='</div>';
   }
